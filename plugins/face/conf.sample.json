@@ -1,0 +1,10 @@
+{
+  "plug":"Face",
+  "tfjsBuild":"cpu",
+  "host":"localhost",
+  "port":8080,
+  "key":"Face123123",
+  "mode":"client",
+  "type":"detector",
+  "connectionType":"websocket"
+}

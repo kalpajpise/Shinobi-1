@@ -1,0 +1,43 @@
+{
+   "port": 8080,
+   "passwordType": "sha256",
+   "detectorMergePamRegionTriggers": true,
+   "wallClockTimestampAsDefault": true,
+   "addStorage": [
+      {
+         "name": "second",
+         "path": "__DIR__/videos2"
+      }
+   ],
+   "db": {
+      "host": "127.0.0.1",
+      "user": "majesticflame",
+      "password": "",
+      "database": "ccio",
+      "port": 3306
+   },
+   "mail": {
+      "service": "gmail",
+      "auth": {
+         "user": "your_email@gmail.com",
+         "pass": "your_password_or_app_specific_password"
+      }
+   },
+   "cron": {
+      "key": "76163591c5031a07e29f8694bd32600ff57f51369b8b478b71207f8ff17f"
+   },
+   "plugins": [
+      {
+         "id": "Tensorflow",
+         "https": false,
+         "host": "localhost",
+         "port": 8082,
+         "key": "e836737cc5a61c89998ce9a3116e7ff08259f1afa0af5ddb39672ef50208",
+         "mode": "host",
+         "type": "detector"
+      }
+   ],
+   "pluginKeys": {
+      "Tensorflow": "e836737cc5a61c89998ce9a3116e7ff08259f1afa0af5ddb39672ef50208"
+   }
+}

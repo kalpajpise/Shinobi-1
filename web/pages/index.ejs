@@ -1,0 +1,214 @@
+<% include blocks/header %>
+<link rel="stylesheet" href="<%-window.libURL%>libs/themes/Ice/style.css">
+<style>
+.wide-text{
+    text-transform: uppercase;
+    letter-spacing: 3;
+    font-size: 8pt!important;
+    font-family: sans-serif;
+    color: #555;
+}
+.text-green {
+    color: #28b391!important;
+}
+.panel {
+    border-color: #28b391!important;
+    background: #044032!important;
+}
+.panel-heading {
+    background: #124438!important;
+    border-color: #163537!important;
+}
+.mdl-switch.is-checked .mdl-switch__thumb {
+    background: #28b391!important;
+}
+.mdl-switch.is-checked .mdl-switch__track {
+    background: rgba(63, 181, 99, 0.5)!important;
+}
+.shinobi-bg {
+    background: #33686d;
+}
+.form-control {
+    background: #163537;
+    border-color: #1d4c40!important;
+    color: #979797;
+}
+</style>
+<% if(screen){screen=screen.toLowerCase()} %>
+<div class="shinobi-bg display-table" style="height:100%">
+<div class="shinobi-bg-shade">
+<div class="container">
+    	<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+				<div class="panel panel-login">
+                    <% if(config.showLoginCardHeader === true){
+                        var logoImageLink
+                        if(config.logoLocation76x76.indexOf('//') === -1){
+                            logoImageLink = window.libURL + config.logoLocation76x76
+                        }else{
+                            logoImageLink = config.logoLocation76x76
+                        }
+                        %>
+                        <div class="panel-heading">
+                            <div class="panel-heading-shade">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <a href="<%- config.logoLocation76x76Link %>" target="_blank">
+                                            <img src="<%- logoImageLink %>" style="<%- config.logoLocation76x76Style %>">
+                                        </a>
+                                    </div>
+                                </div>
+                        	</div>
+                        </div>
+                    <% } %>
+					<div class="panel-body">
+						<div class="row">
+							<div class="col-lg-12">
+								<form id="login-form" method="post" style="display: block;margin:0">
+                                    <input type="hidden" name="machineID" id="machineID" value="">
+                                    <% var message,timeLeft;if(message){ %>
+                                        <div class="form-group text-center monospace">
+                                            <%= message %>
+    									</div>
+                                    <% } %>
+									<div class="form-group">
+										<input type="text" name="mail" id="email" tabindex="1" autofocus class="form-control wide-text" placeholder="<%- lang.Email %>" value="">
+									</div>
+									<div class="form-group">
+										<input type="password" name="pass" id="pass" tabindex="2" class="form-control wide-text" placeholder="<%- lang.Password %>">
+									</div>
+									<div class="form-group f_i_input f_i_ldap" style="display:none">
+										<input name="key" id="key" tabindex="2" class="monospace form-control wide-text" placeholder="Group Key">
+									</div>
+                                    <% if(config.showLoginSelector === true){ %>
+    									<div class="form-group">
+        									<div class="row">
+                                                <div class="col-md-12 monospace">
+                                                    <select class="form-control wide-text" name="function" selector="f_i">
+                                                        <% switch(screen){
+                                                            case'super': %>
+                                                        <option value="super"><%- lang.Superuser %></option>
+                                                        <% break;
+                                                            case'admin': %>
+                                                        <option value="admin"><%- lang.Admin %></option>
+                                                        <% break;
+                                                            default: %>
+                                                        <option value="dash" selected><%- lang.Dashboard %></option>
+                                                        <% if(config.productType==='Pro'){ %>
+                                                        <option value="ldap"><%- lang.LDAP %></option>
+                                                        <% } %>
+                                                        <option value="streamer"><%- lang.Streamer %></option>
+                                                        <option value="cam"><%- lang.Dashcam %> (<%- lang.Streamer %> v2)</option>
+                                                        <% break;
+                                                        } %>
+                                                    </select>
+                                                </div>
+        									</div>
+    									</div>
+                                    <% }else{ %>
+                                        <select class="form-control wide-text" name="function" style="display:none">
+                                            <% switch(screen){
+                                                case'super': %>
+                                            <option value="super"><%- lang.Superuser %></option>
+                                            <% break;
+                                                case'admin': %>
+                                            <option value="admin"><%- lang.Admin %></option>
+                                            <% break;
+                                                default: %>
+                                            <option value="dash" selected><%- lang.Dashboard %></option>
+                                            <% break;
+                                            } %>
+                                        </select>
+                                    <% } %>
+									<div class="form-group">
+                                        <button type="submit" name="login-submit" id="login-submit" tabindex="4" class="btn btn-success btn-block wide-text" style="color:#FFF"><i class="fa fa-key"></i> <%- lang.Login %></button>
+									</div>
+									<div class="form-group text-center" style="margin:0">
+                                        <span style="<%- config.poweredByShinobiClass %>;margin-right: 10px" class="epic-text text-green"><i class="fa fa-sign-in"></i> <%- lang['Remember Me'] %></span>
+                                        <div class="text-right" title="<%- lang['Remember Me'] %>" style="display:inline-block">
+                                            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="remember_me">
+                                              <input type="checkbox" id="remember_me" value="1" name="remember" class="mdl-switch__input">
+                                                <span class="monospace mdl-switch__label"></span>
+                                            </label>
+                                        </div>
+									</div>
+                                    <% if(config.showPoweredByShinobi){ %>
+                                        <p class="text-green" style="<%- config.poweredByShinobiClass %>"><small><%- config.poweredByShinobi %></small></p>
+                                    <% }else{ %>
+                                        <!-- <%- config.poweredByShinobi %> -->
+                                    <% } %>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<script src="<%-window.libURL%>libs/js/material.min.js"></script>
+<script>
+    <% var failedLogin;if(failedLogin===true){ %>
+        localStorage.removeItem('ShinobiLogin_'+location.host)
+    <% } %>
+    $.ccio={f:$('#login-form'),ls:localStorage.getItem('ShinobiLogin_'+location.host),auth:localStorage.getItem('ShinobiAuth_'+location.host)}
+    $.ccio.gid=function(x){
+        if(!x){x=10};var t = "";var p = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        for( var i=0; i < x; i++ )
+            t += p.charAt(Math.floor(Math.random() * p.length));
+        return t;
+    };
+    if(!$.ccio.auth||$.ccio.auth===''){
+        $.ccio.auth=$.ccio.gid(20)
+        localStorage.setItem('ShinobiAuth_'+location.host,$.ccio.auth)
+    }
+    $(document).ready(function(){
+        $('#machineID').val($.ccio.auth)
+    })
+    $.ccio.f.submit(function(e){
+        $('input').css('border-color','')
+        e.e=$(this),e.s=e.e.serializeObject(),e.inputs=e.e.find('input,button');
+        if(e.s.remember){
+            localStorage.setItem('ShinobiLogin_'+location.host,JSON.stringify({mail:e.s.mail,pass:e.s.pass,function:e.s.function}))
+        }else{localStorage.removeItem('ShinobiLogin_'+location.host)}
+    })
+    if($.ccio.ls){
+        $.ccio.ls=JSON.parse($.ccio.ls);
+        $.each($.ccio.ls,function(n,v){
+            n=$.ccio.f.find('[name="'+n+'"]')
+            if(n.attr('type')==='checkbox'){
+                n.prop('checked',true)
+            }else{
+                n.val(v)
+            }
+        });
+        $.ccio.f.find('[name="remember"]').prop('checked',true);
+        $.ccio.f.submit()
+    }
+    $('[name="function"]').change(function(){
+        e={};
+        e.removeClass='btn-danger btn-primary btn-success btn-warning'
+        switch($(this).val()){
+            case'streamer':
+                e.addClass='btn-warning'
+            break;
+            case'admin':
+                e.addClass='btn-primary'
+            break;
+            case'super':
+                e.addClass='btn-danger'
+            break;
+            default:
+                e.addClass='btn-success'
+            break;
+        }
+        $('#login-submit').removeClass(e.removeClass).addClass(e.addClass)
+    })
+$('[selector]').change(function(e){
+    e.v=$(this).val();e.a=$(this).attr('selector')
+    $('.'+e.a+'_input').hide()
+    $('.'+e.a+'_'+e.v).show();
+    $('.'+e.a+'_text').text($(this).find('option:selected').text())
+}).change();
+</script>

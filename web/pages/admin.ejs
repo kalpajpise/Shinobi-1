@@ -1,0 +1,297 @@
+<%
+    window.libURL = originalURL + global.s.checkCorrectPathEnding(config.webPaths.admin)
+%>
+<% include blocks/header %>
+<script>$user=<%-JSON.stringify($user)%></script>
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/pnotify.custom.min.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/vbox.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/circles.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/admin-page.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/bootstrap.min.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/font-awesome.min.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/fullcalendar.min.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/bootstrap-table.min.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/dash2.basic.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/dash2.modal.css">
+<link rel="stylesheet" href="<%-window.libURL%>libs/css/dash2.forms.css">
+<% customAutoLoad.adminLibsCss.forEach(function(lib){ %>
+    <link rel="stylesheet" href="<%-window.libURL%>libs/css/<%-lib%>">
+<% }) %>
+<body class="shinobi-bg">
+<div class="container-fluid">
+    <div class="container">
+<nav class="navbar navbar-default navbar-forestgreen">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">Shinobi : Admin</a>
+    </div>
+
+
+      <ul class="nav navbar-nav navbar-right">
+<!--        <li><a href="#">Link</a></li>-->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">&nbsp;<i class="fa fa-bars"></i>&nbsp;</a>
+          <ul class="dropdown-menu">
+<!--
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+-->
+            <li><a class="logout"><i class="fa fa-sign-out pull-right"></i> Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+  </div><!-- /.container-fluid -->
+</nav>
+
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group-group forestgreen">
+                    <h4>Sub-Accounts</h4>
+                    <table class="table table-striped" id="sub_accounts"></table>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <form id="add_new">
+                  <div class="form-group-group forestgreen">
+                        <h4>Add<small id="msg" class="pull-right" style="color:#fff"></small></h4>
+                        <div class="form-group">
+                            <label><div><span>Email</span></div>
+                                <div><input class="form-control" type="email" name="mail"></div>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label><div><span>Password</span></div>
+                                <div><input class="form-control" type="password" name="pass"></div>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label><div><span>Password Again</span></div>
+                                <div><input class="form-control" type="password" name="password_again"></div>
+                            </label>
+                      </div>
+                      <div>
+                          <button type="reset" class="btn btn-danger"><i class="fa fa-undo"></i> Clear</button>
+                          <div class="pull-right">
+                            <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Submit</button>
+                          </div>
+                      </div>
+                  </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var adminApiPrefix = location.search === '?p2p=1' ? location.pathname + '/' : "<%=originalURL%><%=config.webPaths.adminApiPrefix%>"
+</script>
+<% include blocks/confirm.ejs %>
+<% include blocks/subpermissions.ejs %>
+<% customAutoLoad.adminPageBlocks.forEach(function(block){ %>
+    <%- include(block) %>
+<% }) %>
+</body>
+<script><% include ../libs/js/basic.js %></script>
+<script><% include ../libs/js/socket.io.js %></script>
+<script><% include ../libs/js/pnotify.custom.min.js %></script>
+<script><% include ../libs/js/moment.js %></script>
+<script><% include ../libs/js/livestamp.min.js %></script>
+<script><% include ../libs/js/placeholder.js %></script>
+<script><% include ../libs/js/bootstrap.min.js %></script>
+<script><% include ../libs/js/bootstrap-table.min.js %></script>
+<script>
+$.ccio={subs:{}};$.ls=localStorage;
+if(location.search === '?p2p=1'){
+    $.ccio.ws=io(location.origin,{
+        path : '/socket.io'
+    });
+}else{
+    $.ccio.ws=io(location.origin,{
+        path : tool.checkCorrectPathEnding(location.pathname)+'socket.io'
+    });
+}
+$.ccio.cx=function(x){if(!x.ke){x.ke=$user.ke;};if(!x.uid){x.uid=$user.uid;};return $.ccio.ws.emit('a',x)}
+$.ccio.ws.on('connect',function(d){
+    $.ccio.cx({f:'init',auth:$user.auth_token,machineId: `<%- config.machineId %>`});
+})
+PNotify.prototype.options.styling = "fontawesome";
+$.ccio.ws.on('f',function(d){
+    console.log(d);
+    switch(d.f){
+        case'edit_sub_account':
+            var account = $.ccio.subs[d.uid]
+            $.each(d.form,function(n,v){
+                account[n]=v;
+            });
+            account.detailsJSON=JSON.parse(account.details)
+            new PNotify({
+                title : 'Account Edited',
+                text : '<b>' + account.mail + '</b> has been updated.',
+                type : 'success'
+            })
+        break;
+        case'add_sub_account':
+            $.ccio.tm(0,d,'#sub_accounts')
+            var account = $.ccio.subs[d.uid]
+            new PNotify({
+                title : 'Account Added',
+                text : '<b>' + account.mail + '</b> has been added.',
+                type : 'success'
+            })
+        break;
+        case'delete_sub_account':
+            $('#sub_accounts tr[uid="'+d.uid+'"]').remove()
+            var account = $.ccio.subs[d.uid]
+            new PNotify({
+                title : 'Account Deleted',
+                text : '<b>' + account.mail + '</b> has been deleted.',
+                type : 'info'
+            })
+        break;
+    }
+})
+    $.ccio.tm=function(x,d,z,k){
+        var tmp='';if(!d){d={}};if(!k){k={}};
+        if(d.id&&!d.mid){d.mid=d.id;}
+        switch(x){
+            case 0://sub account row
+                d.detailsJSON=JSON.parse(d.details);
+                $.ccio.subs[d.uid]=d;
+                tmp+='<tr uid="'+d.uid+'"><td><b class="mail">'+d.mail+'</b></td><td><span class="uid">'+d.uid+'</span></td><td><a class="permission btn btn-xs btn-primary"><i class="fa fa-lock"></i></a></td><td><a class="delete btn btn-xs btn-danger"><i class="fa fa-trash-o"></i></a></td></tr>';
+            break;
+        }
+        if(z){
+            $(z).prepend(tmp)
+        }
+        return tmp;
+    }
+$subs=<%-JSON.stringify($subs)%>;
+$.each($subs,function(n,v){
+    $.ccio.tm(0,v,'#sub_accounts')
+})
+
+//add new
+$.aN={e:$('#add_new')};
+$.aN.e.submit(function(e){
+    e.preventDefault();
+    e.s = $.aN.e.serializeObject()
+    e.m = $('#msg').empty()
+    $.post(adminApiPrefix + $user.auth_token+'/accounts/'+$user.ke+'/register',{data:e.s},function(d){
+        if(d.msg){
+            e.m.text(d.msg)
+        }
+    });
+    return false;
+});
+//sub simple lister
+$.sU={e:$('#sub_accounts')};
+$.sU.e.on('click','.delete',function(e){
+    var el = $(this).parents('tr')
+    var subAccountEmail = el.find('.mail').text()
+    var subAccountUid = el.attr('uid')
+    $.confirm.e.modal('show')
+    $.confirm.title.html('Delete Sub-Account <small>'+subAccountUid+'</small>')
+    var html = 'Do you want to delete <b>'+subAccountEmail+'</b>? You cannot recover this account.'
+    $.confirm.body.html(html)
+    $.confirm.click({title:'Delete',class:'btn-danger'},function(){
+        $.post(adminApiPrefix + $user.auth_token+'/accounts/'+$user.ke+'/delete',{
+            uid: subAccountUid,
+            mail: subAccountEmail
+        },function(data){})
+    })
+})
+$.sU.e.on('click','.permission',function(e){
+    e.e=$(this).parents('tr');e.m=e.e.find('.mail').text();e.u=e.e.attr('uid');
+    $.pR.e.modal('show');
+    $.pR.l.text(e.m);
+    $.pR.user=e.u;
+    e.d=$.ccio.subs[e.u].detailsJSON;
+    //load values
+    $.each($.ccio.subs[$.pR.user],function(n,v){
+        $.pR.e.find('[name="'+n+'"]').val(v)
+    })
+    $.pR.e.find('[detail]').each(function(n,v){
+        $(v).val(e.d[$(v).attr('detail')])
+    }).first().change()
+    $.each(['monitors','monitor_edit','video_delete','video_view'],function(m,b){
+        if(e.d[b]){
+            $.each(e.d[b],function(n,v){
+                $.pR.e.find('[monitor="'+b+'"][mid="'+v+'"]').val(1)
+            })
+        }
+    })
+})
+
+//permission window
+$.pR={e:$('#permissions'),l:$('#permissionsLabel small')};$.pR.f=$.pR.e.find('form')
+$.pR.e.on('change','[detail]',function(e){
+    e.f=$(this).parents('form');
+    var details = $.pR.e.find('[name="details"]')
+    e.ar = JSON.parse(details.val())
+    e.f.find('[detail]').each(function(n,v){
+        v = $(v);e.ar[v.attr('detail')] = v.val()
+    })
+    details.val(JSON.stringify(e.ar))
+})
+$.pR.e.on('change','[detail="allmonitors"]',function(e){
+    e.e=$(this),
+    e.mon=$('.permission-view')
+    if(e.e.val() === '1'){
+        e.mon.hide();
+    }else{
+        e.mon.show()
+        $.pR.e.find('[monitor]').first().change()
+    }
+})
+$.pR.e.on('click','[check]',function(e){
+    $(this).parents('.form-group-group').find('select').val($(this).attr('check')).first().change()
+})
+$.pR.e.on('change','[monitor]',function(e){
+    e.details=$.pR.e.find('[name="details"]')
+    try{e.detail=JSON.parse(e.details.val())}catch(err){e.detail={}}
+    if(!e.detail){e.detail={}}
+    $.pR.e.find('[monitor]').each(function(n,kel){
+        var monitors = [];
+        var key = $(kel).attr('monitor')
+        $.pR.e.find('[monitor="'+key+'"]').each(function(n,v){
+            var el = $(v)
+            if(el.val() === '1'){
+                monitors.push(el.attr('mid'))
+            }
+        });
+        e.detail[key] = monitors
+    })
+    e.details.val(JSON.stringify(e.detail))
+});
+$.pR.f.submit(function(e){
+    e.preventDefault()
+    var form = $(this).serializeObject()
+    $.post(adminApiPrefix + $user.auth_token+'/accounts/'+$user.ke+'/edit',{
+        uid: $.pR.user,
+        mail: $.ccio.subs[$.pR.user].mail,
+        data: form
+    },function(data){
+        if(data.ok){
+            $.pR.e.modal('hide')
+        }else{
+            new PNotify({
+                title : 'Failed to Add Account',
+                text : data.msg,
+                type : 'error'
+            })
+        }
+    })
+    return false
+})
+
+$('body')
+.on('click','.logout',function(e){
+    localStorage.removeItem('ShinobiLogin_'+location.host);location.href=location.href;
+})
+</script>
+<% customAutoLoad.adminLibsJs.forEach(function(lib){ %>
+    <script src="<%-window.libURL%>libs/js/<%-lib%>"></script>
+<% }) %>
