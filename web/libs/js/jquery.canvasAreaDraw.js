@@ -120,6 +120,7 @@
 
             if (points.length >= 6) {
                 var c = getCenter();
+                console.log("Canvas function ");
                 ctx.fillRect(c.x - 4, c.y - 4, 8, 8);
                 dis = Math.sqrt(Math.pow(x - c.x, 2) + Math.pow(y - c.y, 2));
                 if (dis < 6) {
@@ -175,11 +176,13 @@
             ctx.lineWidth = 1;
             if (points.length >= 6) {
                 var c = getCenter();
+                console.log("Chart function 10 ");
                 ctx.fillRect(c.x - 4, c.y - 4, 8, 8);
             }
             ctx.beginPath();
             ctx.moveTo(points[0], points[1]);
             for (var i = 0; i < points.length; i += 2) {
+                console.log("Chart function 12");
                 ctx.fillRect(points[i] - 2, points[i + 1] - 2, 4, 4);
                 ctx.strokeRect(points[i] - 2, points[i + 1] - 2, 4, 4);
                 if (points.length > 2 && i > 1) {

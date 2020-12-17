@@ -334,6 +334,7 @@ $.ccio.init=function(x,d,user,k){
             d.streamObjects.append(d.tmp)
         break;
         case'drawMatrices':
+            console.log("data values ---- > ", d);
             d.height=d.stream.height()
             d.width=d.stream.width()
             if(!d.details.imgWidth && d.monitorDetails.detector_scale_x===''){d.monitorDetails.detector_scale_x=320}
@@ -344,7 +345,9 @@ $.ccio.init=function(x,d,user,k){
 
             d.streamObjects.find('.stream-detected-object[name="'+d.details.name+'"]').remove()
             d.tmp=''
+            console.log("draw- matrices");
             $.each(d.details.matrices,function(n,v){
+                console.log(n,v);
                 d.tmp+='<div class="stream-detected-object" name="'+d.details.name+'" style="height:'+(d.heightRatio*v.height)+'px;width:'+(d.widthRatio*v.width)+'px;top:'+(d.heightRatio*v.y)+'px;left:'+(d.widthRatio*v.x)+'px;">'
                 if(v.tag){d.tmp+='<span class="tag">'+v.tag+'</span>'}
                 d.tmp+='</div>'

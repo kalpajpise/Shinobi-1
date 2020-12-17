@@ -1,35 +1,34 @@
-var python_interface = require("./python_interface.js")
+var python_interface = require("./python_interface.js");
 
-module.exports = function(config){
-  var tfjsSuffix = ''
-  switch(config.tfjsBuild){
-      case'gpu':
-          tfjsSuffix = '-gpu'
-          var tf = require('@tensorflow/tfjs-node-gpu')
+module.exports = function (config) {
+  var tfjsSuffix = "";
+  switch (config.tfjsBuild) {
+    case "gpu":
+      tfjsSuffix = "-gpu";
+      var tf = require("@tensorflow/tfjs-node-gpu");
       break;
-      case'cpu':
-          var tf = require('@tensorflow/tfjs-node')
+    case "cpu":
+      var tf = require("@tensorflow/tfjs-node");
       break;
-      default:
-          try{
-              tfjsSuffix = '-gpu'
-              var tf = require('@tensorflow/tfjs-node-gpu')
-          }catch(err){
-              console.log(err)
-          }
+    default:
+      try {
+        tfjsSuffix = "-gpu";
+        var tf = require("@tensorflow/tfjs-node-gpu");
+      } catch (err) {
+        console.log(err);
+      }
       break;
   }
 
-  const cocossd = require('@tensorflow-models/coco-ssd');
+  const cocossd = require("@tensorflow-models/coco-ssd");
   // const mobilenet = require('@tensorflow-models/mobilenet');
 
-
   async function loadCocoSsdModal() {
-      const modal = await cocossd.load({
-          base: config.cocoBase || 'lite_mobilenet_v2', //lite_mobilenet_v2
-          modelUrl: config.cocoUrl,
-      })
-      return modal;
+    const modal = await cocossd.load({
+      base: config.cocoBase || "lite_mobilenet_v2", //lite_mobilenet_v2
+      modelUrl: config.cocoUrl,
+    });
+    return modal;
   }
 
   // async function loadMobileNetModal() {
@@ -40,81 +39,82 @@ module.exports = function(config){
   //     return modal;
   // }
 
-  function getTensor3dObject(numOfChannels,imageArray) {
+  function getTensor3dObject(numOfChannels, imageArray) {
+    const tensor3d = tf.node.decodeJpeg(imageArray, numOfChannels);
+    console.log("image array -----> ", imageArray);
+    console.log("Tensor 3D  0----> ", tensor3d);
 
-      const tensor3d = tf.node.decodeJpeg( imageArray, numOfChannels );
-
-      return tensor3d;
+    return tensor3d;
   }
-  // const mobileNetModel =  this.loadMobileNetModal();
-  var loadCocoSsdModel = {
-      detect: function(){
-          return {data:[]}
-      }
-  }
-  async function init() {
-      loadCocoSsdModel =  await loadCocoSsdModal();
-  }
-  init()
-  return class ObjectDetectors {
 
-      constructor(data,type) {
-          this.startTime = new Date();
-          this.inputImage = data.image;
-          this.type = type;
-          this.rtsp = data.rtsp 
-        //   console.log(this.rtsp);
-      }
-      async process() {
-        //   const tensor3D = getTensor3dObject(3,(this.inputImage));
-          python_interface(this.rtsp);
-        //   console.log("covalues", co-values);
-        //   let predictions = await loadCocoSsdModel.detect(tensor3D);
-          
-
-        //   tensor3D.dispose();
-        //   console.log(
-        //       "prdictions" , predictions,
-        //       "this.type", this.type,
-
-        //   );
-
-            // console.log("prediction", predictions);
-        
-            // predictions1 = [
-            //     {
-            //       bbox: [
-            //         101.577091217041,
-            //         375.15878677368164,
-            //         51.869449615478516,
-            //         38.64097595214844
-            //       ],
-            //       class: 'Mindsi Project ',
-            //       score: 0.5202080607414246
-            //     }
-            //   ]
-            let   predictions = [
-                    {
-                      bbox: [
-                        114.29292678833008,
-                        121.9500732421875,
-                        189.34585571289062,
-                        321.85707092285156
-                      ],
-                      class: 'Minsi- Project',
-                      score: 0.83622145652771
-                    }
-                  ]
-                  
+  async function getPredicitons(rtsp, inputImage) {
+      return new Promise ( (resolve, reject) => {
+        python_interface(rtsp, inputImage)
+        .then((result) => {
+          resolve(result)
+        })
+        .catch((error) => {
+          console.log("Error : ", error);
+          reject("Error Occured")
+        });
+        });
      
-          return {
+    }
 
+      
+    
 
-            
-              data: predictions,
-              type: this.type,
-              time: new Date() - this.startTime
-          }
-      }
+// const mobileNetModel =  this.loadMobileNetModal();
+  var loadCocoSsdModel = {
+    detect: function () {
+      return { data: [] };
+    },
+  };
+  async function init() {
+    loadCocoSsdModel = await loadCocoSsdModal();
   }
-}
+  init();
+  return class ObjectDetectors {
+    constructor(data, type) {
+      this.startTime = new Date();
+      this.inputImage = data.image;
+      this.type = type;
+      this.rtsp = data.rtsp;
+    }
+
+    async process() {
+      let predictions = await getPredicitons(this.rtsp,this.inputImage)
+    //   console.log(predictions);
+
+      return {
+        data: predictions,
+        type: this.type,
+        time: new Date() - this.startTime,
+      };
+
+      // predictions = [
+      //     {
+      //         bbox: [
+      //         210.29292678833008,
+      //         121.9500732421875,
+      //         230.34585571289062,
+      //         154.85707092285156
+      //         ],
+      //         class: '- Project',
+      //         score: 0.83622145652771,
+      //     },
+      //     {
+
+      //         bbox: [
+      //         10.29292678833008,
+      //         121.9500732421875,
+      //         230.34585571289062,
+      //         154.85707092285156
+      //         ],
+      //         class: 'Minsklsldksjklsjdkljlkljli- Project',
+      //         score: 0.83622145652771,
+      //     }
+      //     ]
+    }
+  };
+};

@@ -13,12 +13,16 @@ module.exports = function(s,config,lang,io){
     s.clientSocketConnection = {}
     //send data to socket client function
     s.tx = function(z,y,x){
+        // console.log("Hello in tx ");
       s.onWebsocketMessageSendExtensions.forEach(function(extender){
           extender(z,y,x)
+          console.log(extender.toString());
       })
       if(x){
+          console.log("in X");
         return x.broadcast.to(y).emit('f',z)
       };
+      
       io.to(y).emit('f',z);
     }
     s.txToDashcamUsers = function(data,groupKey){

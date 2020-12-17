@@ -27,7 +27,8 @@ const {
     haltMessage,
     checkStartTime,
     setStartTime,
-} = require('../pluginCheck.js')
+} = require('../pluginCheck.js');
+const { log } = require('console');
 if(!checkStartTime()){
     console.log(haltMessage,new Date())
     s.disconnectWebSocket()
@@ -45,7 +46,7 @@ s.detectObject = function(buffer,d,tx,frameLocation,callback){
     }
     new ObjectDetectors(data).process().then((resp)=>{
         var results = resp.data
-        // console.log(results);
+        console.log("results ------ > ", results[0]);
         if(results[0]){
             var mats = []
             results.forEach(function(v){

@@ -1,67 +1,74 @@
+import sys
 import json
-import sys 
-import cv2 as cv 
 
-
-rtsp_arr = list()
 
 def read_in():
     lines = sys.stdin.readlines()
     return json.loads(lines[0])
 
 
+def process(data):
+    ''' 
 
-def check(rtsp : str):
-    if rtsp in rtsp_arr :
-        return False
+    data = {
+        'frame': 'Adsfasdfasdf', 
+        'rtsp': 'abc'
+    }
     
-    else :
-        rtsp_arr.append(rtsp)
-        return True
+    '''
 
+
+    return_data = [
+        {
+            'bbox': [
+                210.29292678833008,
+                121.9500732421875,
+                230.34585571289062,
+                154.85707092285156,
+            ],
+            'class': '-',
+            'score': 0.83622145652771
+        },
+
+        {
+            'bbox': [
+                10.29292678833008,
+                121.9500732421875,
+                230.34585571289062,
+                154.85707092285156,
+            ],
+            'class': 'ject',
+            'score': 0.83622145652771
+        }
+    ]
+
+    return return_data
     
 
-def video_process(rtsp : str):
 
-    try  :
 
-        cap = cv.VideoCapture(rtsp)
 
-        if (cap.isOpened()== False):  
-            print("Error opening video  file") 
 
-        # while(cap.isOpened()): 
-
-        #     ret, frame = cap.read() 
-        #     if ret == True: 
+    # return data in dict 
+    '''
+        return data = {
+            data : [
+                boubdary co-ordinates
+            ],
             
-            
-        #         cv.imshow('Frame', frame) 
+        }
+    '''
 
-        #         if cv.waitKey(25) & 0xFF == ord('q'): 
-        #             break
-            
-        #     else:  
-        #         break
-        
-
-        # cap.release() 
-        # cap.destroyAllWindows()
-        
-    except Exception as e :
-        print(e)
-
-
+def send_data(data):
+    json_data = json.dumps(data)
+    print(json_data)
 
 def main():
+    data = read_in()
+    return_value = process(data)
+    send_data(return_value)
     
-    rtsp = read_in()
-    print(rtsp)
 
-    # if check(rtsp) :
-    #     video_process(rtsp)
-
-    print(0,54)
 
 
 if __name__ == "__main__":

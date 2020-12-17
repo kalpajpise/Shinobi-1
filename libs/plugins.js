@@ -10,9 +10,11 @@ module.exports = function(s,config,lang,io){
         switch(d.f){
             case'trigger':
                 s.triggerEvent(d)
+                // console.log("trigger Event of data ----> ", s.triggerEvent.toString());
             break;
             case's.tx':
                 s.tx(d.data,d.to)
+                console.log("d.data  ======== > ");
             break;
             case'log':
                 s.systemLog('PLUGIN : '+d.plug+' : ',d)
@@ -252,7 +254,7 @@ module.exports = function(s,config,lang,io){
                     }
                 })
                 socket.on('ocv',s.pluginEventController);
-                console.log("pluginEventController ------- > " ,  s.pluginEventController.toString() );
+                console.log("pluginEventController Not used ------- > " ,  s.pluginEventController.toString() );
                 socket.on('disconnect', function(){
                     s.connectedPlugins[v.id].plugged=false
                     if(v.type === 'detector'){
@@ -331,7 +333,7 @@ module.exports = function(s,config,lang,io){
                 console.log("Plugin 1st else ---- > ", );
 
                 if(config.pluginKeys[d.plug] === d.pluginKey){
-                    console.log(s.pluginEventController.toString());
+                    // console.log("Called else part s.pluginEventController(d)------->", s.pluginEventController.toString());
                     s.pluginEventController(d)
                     if(config.detectorPluginsCluster)addCpuUsageHandler(cn,d.plug)
                 }else{

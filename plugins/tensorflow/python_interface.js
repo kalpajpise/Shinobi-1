@@ -1,37 +1,32 @@
-var spawn = require('child_process').spawn
-var rtsp_arr = []
+var spawn = require("child_process").spawn;
 
+module.exports =  function (rtsp, frame_array) {
+  return new Promise((resolve, reject) => {
+    const params = {
+      rtsp: rtsp,
+      frame: frame_array,
+    };
 
-module.exports =  function(rtsp) {
+    const pyArgs = [__dirname + "/compute-rtsp.py"];
+    const py = spawn("python", pyArgs);
 
-    console.log( );
-    py    = spawn('python', [__dirname + "/compute-rtsp.py"]),
+    let returnDate = "";
 
-    // console.log(__dirname + "/compute-rtsp.py");
-
-    data = rtsp;
-    dataString = '';
-
-
-    py.stdout.on('data', function(data){
-    dataString += data.toString();
+    py.stdout.on("data", function (data) {
+      returnDate += data;
     });
 
-
-    py.stdout.on('end', function(){
-    console.log('Python Output : \n', dataString);
-
+    py.stdout.on("end", function () {
+      try {
+        return_data = JSON.parse(returnDate);
+        resolve(return_data);
+      } catch (e) {
+        console.log(e);
+        reject("Error Ocurred");
+      }
     });
-    
 
-
-    py.stdin.write(JSON.stringify(data));
+    py.stdin.write(JSON.stringify(params));
     py.stdin.end();
-
-    // if (rtsp_arr.indexOf(rtsp) == -1 ){
-    //     console.log("calling python");
-    //     rtsp_arr.push(rtsp)
-        
-    // }
-
-}
+  });
+};

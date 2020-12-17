@@ -3611,6 +3611,7 @@ module.exports = function(Chart) {
 		case 'rect':
 			size = 1 / Math.SQRT2 * radius;
 			ctx.beginPath();
+			console.log("Chart function ");
 			ctx.fillRect(x - size, y - size, 2 * size, 2 * size);
 			ctx.strokeRect(x - size, y - size, 2 * size, 2 * size);
 			break;
@@ -8901,6 +8902,7 @@ module.exports = function(Chart) {
 					if (drawColorBoxes) {
 						// Fill a white rect so that colours merge nicely if the opacity is < 1
 						ctx.fillStyle = mergeOpacity(vm.legendColorBackground, opacity);
+						console.log("Chart function  2");
 						ctx.fillRect(pt.x, pt.y, bodyFontSize, bodyFontSize);
 
 						// Border
@@ -8909,6 +8911,7 @@ module.exports = function(Chart) {
 
 						// Inner square
 						ctx.fillStyle = mergeOpacity(vm.labelColors[i].backgroundColor, opacity);
+						console.log("Chart function 3 ");
 						ctx.fillRect(pt.x + 1, pt.y + 1, bodyFontSize - 2, bodyFontSize - 2);
 
 						ctx.fillStyle = textColor;
@@ -10697,6 +10700,7 @@ module.exports = function(Chart) {
 						if (!isLineWidthZero) {
 							ctx.strokeRect(x, y, boxWidth, fontSize);
 						}
+						console.log("Chart function 4");
 						ctx.fillRect(x, y, boxWidth, fontSize);
 					}
 
@@ -12283,6 +12287,7 @@ module.exports = function(Chart) {
 							if (tickOpts.showLabelBackdrop) {
 								var labelWidth = ctx.measureText(label).width;
 								ctx.fillStyle = tickOpts.backdropColor;
+								console.log("Chart function 5");
 								ctx.fillRect(
 									me.xCenter - labelWidth / 2 - tickOpts.backdropPaddingX,
 									yHeight - tickFontSize / 2 - tickOpts.backdropPaddingY,

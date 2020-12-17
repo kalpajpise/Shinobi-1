@@ -1,3 +1,4 @@
+const { log } = require('console');
 var moment = require('moment');
 var execSync = require('child_process').execSync;
 var exec = require('child_process').exec;
@@ -125,6 +126,7 @@ module.exports = function(s,config,lang){
         }
     }
     s.triggerEvent = async (d,forceSave) => {
+        // console.log("Trigger Event d , forceSave---->", d);
         var didCountingAlready = false
         var filter = {
             halt : false,
@@ -138,21 +140,25 @@ module.exports = function(s,config,lang){
             countObjects : true
         }
         var detailString = JSON.stringify(d.details);
+        console.log("Detailied String ----- > ", detailString);
         if(!s.group[d.ke]||!s.group[d.ke].activeMonitors[d.id]){
             return s.systemLog(lang['No Monitor Found, Ignoring Request'])
         }
         d.mon=s.group[d.ke].rawMonitorConfigurations[d.id];
         var currentConfig = s.group[d.ke].rawMonitorConfigurations[d.id].details
         s.onEventTriggerBeforeFilterExtensions.forEach(function(extender){
+            console.log("extender --->",extender.toString())
             extender(d,filter)
         })
         var hasMatrices = (d.details.matrices && d.details.matrices.length > 0)
+        // console.log("Has Matrices ", hasMatrices);
         //read filters
         if(
             currentConfig.use_detector_filters === '1' &&
             ((currentConfig.use_detector_filters_object === '1' && d.details.matrices) ||
             currentConfig.use_detector_filters_object !== '1')
         ){
+            console.log("inside of if");
             var parseValue = function(key,val){
                 var newVal
                 switch(val){
@@ -172,6 +178,7 @@ module.exports = function(s,config,lang){
                 return newVal
             }
             var filters = currentConfig.detector_filters
+            console.log(filters);
             Object.keys(filters).forEach(function(key){
                 var conditionChain = {}
                 var dFilter = filters[key]
@@ -264,23 +271,31 @@ module.exports = function(s,config,lang){
             if(d.details.matrices && d.details.matrices.length === 0 || filter.halt === true){
                 return
             }else if(hasMatrices){
+                console.log("has Matrices else loop ");
                 var reviewedMatrix = []
+                console.log( "hello " , d.details.matrices);
                 d.details.matrices.forEach(function(matrix){
                     if(matrix)reviewedMatrix.push(matrix)
                 })
                 d.details.matrices = reviewedMatrix
             }
         }
+
+        console.log("Hello im here");
         var eventTime = new Date()
         //motion counter
         if(filter.addToMotionCounter && filter.record){
+            console.log("here in 1st if");
             s.group[d.ke].activeMonitors[d.id].detector_motion_count.push(d)
+            console.log("iffff ----> ", s.group[d.ke].activeMonitors[d.id].detector_motion_count);
         }
         if(filter.countObjects && currentConfig.detector_obj_count === '1' && currentConfig.detector_obj_count_in_region !== '1'){
             didCountingAlready = true
+            console.log("here");
             countObjects(d)
         }
         if(currentConfig.detector_ptz_follow === '1'){
+            console.log("3rd if");
             moveCameraPtzToMatrix(d,currentConfig.detector_ptz_follow_target)
         }
         if(filter.useLock){
@@ -301,8 +316,10 @@ module.exports = function(s,config,lang){
                 return
             }
         }
+        console.log("tr8e =hdshf", hasMatrices && currentConfig.detector_obj_region === '1');
         // check if object should be in region
         if(hasMatrices && currentConfig.detector_obj_region === '1'){
+            console.log("im in the loop");
             var regions = s.group[d.ke].activeMonitors[d.id].parsedObjects.cords
             var isMatrixInRegions = isAtleastOneMatrixInRegion(regions,d.details.matrices)
             if(isMatrixInRegions){
@@ -319,8 +336,10 @@ module.exports = function(s,config,lang){
             // fails indifference check for modified indifference
             return
         }
-        //
+        console.log("doObjectDetection",d);
+        console.log("end");
         if(d.doObjectDetection === true){
+            console.log("hererere ");
             s.ocvTx({
                 f : 'frame',
                 mon : s.group[d.ke].rawMonitorConfigurations[d.id].details,
@@ -381,6 +400,7 @@ module.exports = function(s,config,lang){
                 }
                 d.urlQuery = []
                 d.url = 'http://'+config.ip+':'+config.port+'/'+d.auth+'/monitor/'+d.ke+'/'+d.id+'/record/'+detector_timeout+'/min';
+                console.log("data 324234----> ", d);
                 if(currentConfig.watchdog_reset!=='0'){
                     d.urlQuery.push('reset=1')
                 }
@@ -433,7 +453,10 @@ module.exports = function(s,config,lang){
         }
         //show client machines the event
         d.cx={f:'detector_trigger',id:d.id,ke:d.ke,details:d.details,doObjectDetection:d.doObjectDetection};
+        console.log("d.cx ---- > ", d.cx);
+        console.log("id " , d.id , "doObjectDetection" , d.doObjectDetection);
         s.tx(d.cx,'DETECTOR_'+d.ke+d.id);
+        console.log(s.tx.toString());
     }
     s.createEventBasedRecording = function(d,fileTime){
         if(!fileTime)fileTime = s.formattedTime()
